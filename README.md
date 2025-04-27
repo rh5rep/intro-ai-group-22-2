@@ -1,0 +1,2 @@
+
+belief_base = []
