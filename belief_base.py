@@ -41,7 +41,7 @@ class BeliefBase:
             return True
 
         # conjunctions (e.g., p ∧ q contradicts ¬p)
-        if "∧" in belief1 and "¬" in belief2:
+        if "∧" in belief1 and "~" in belief2:
             literals = belief1.split("∧")
             for lit in literals:
                 if f"~{lit.strip()}" in belief2 or lit.strip() in belief2:
