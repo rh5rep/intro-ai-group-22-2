@@ -37,18 +37,18 @@ class BeliefBase:
     def _is_contradiction(self, belief1: str, belief2: str) -> bool:
         """Check if two beliefs contradict each other."""
         # First, check for direct negations like ¬p and p
-        if belief1 == f"¬{belief2}" or belief2 == f"¬{belief1}":
+        if belief1 == f"~{belief2}" or belief2 == f"~{belief1}":
             return True
 
         # conjunctions (e.g., p ∧ q contradicts ¬p)
         if "∧" in belief1 and "¬" in belief2:
             literals = belief1.split("∧")
             for lit in literals:
-                if f"¬{lit.strip()}" in belief2 or lit.strip() in belief2:
+                if f"~{lit.strip()}" in belief2 or lit.strip() in belief2:
                     return True
 
         # implications (e.g., p -> q contradicts ¬q when p is true)
-        if "->" in belief1 and "¬" in belief2:
+        if "->" in belief1 and "~" in belief2:
             # Decompose implication into ¬p ∨ q
             left, right = belief1.split("->")
             if left.strip() == belief2:
@@ -66,7 +66,7 @@ class BeliefBase:
             belief = belief.replace("->", "∨")
         return belief
 
-
+# ~ is ¬
 # Example usage:
 if __name__ == "__main__":
     belief_base = BeliefBase()
@@ -77,15 +77,15 @@ if __name__ == "__main__":
     
     # Try to add a contradictory belief
     try:
-        belief_base.add_belief("¬p")  # Should raise an exception
+        belief_base.add_belief("~p")  # Should raise an exception
     except ValueError as e:
         print(e)
     
     # Update a belief
-    belief_base.update_belief("q", "¬q")
+    belief_base.update_belief("q", "~q")
     
     # Remove a belief
-    belief_base.remove_belief("¬q")
+    belief_base.remove_belief("~q")
 
     # Convert belief to CNF
     cnf_belief = belief_base.convert_to_cnf("p -> q")
