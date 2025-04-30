@@ -65,6 +65,19 @@ class BeliefBase:
         if "->" in belief:
             belief = belief.replace("->", "∨")
         return belief
+    
+
+    def contraction(self, belief: str):
+        """Remove a belief from the belief base based on its entrenchment."""
+        # Sort beliefs by entrenchment (this is a placeholder for actual logic)
+        sorted_beliefs = sorted(self.beliefs, key=lambda b: self.get_entrenchment(b))
+        
+        # Remove the belief with the lowest entrenchment
+        if belief in sorted_beliefs:
+            self.remove_belief(belief)
+        else:
+            raise ValueError(f"Belief not found for contraction: {belief}")
+        
 
 # ~ is ¬
 # Example usage:
