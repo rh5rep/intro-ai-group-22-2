@@ -12,10 +12,12 @@ class BeliefBase:
 
     def add_belief(self, belief: str, entrenchment: Optional[int] = 50):
         """Add a belief to the belief base with optional entrenchment."""
-        if self.is_consistent(belief):
-            self.beliefs.append((belief, entrenchment))
-        else:
-            raise ValueError(f"Contradiction detected: {belief}")
+        # TODO: Use Rami's check for contradiction (resolution) 
+        self.beliefs.append((belief, entrenchment))
+        # if self.is_consistent(belief):
+        #     self.beliefs.append((belief, entrenchment))
+        # else:
+        #     raise ValueError(f"Contradiction detected: {belief}")
 
     def remove_belief(self, belief: str):
         """Remove a belief from the belief base."""
@@ -30,13 +32,13 @@ class BeliefBase:
         self.remove_belief(old_belief)
         self.add_belief(new_belief, entrenchment)
 
-    def is_consistent(self, belief: str) -> bool:
-        """Check if adding the belief causes any contradictions."""
-        if not self.beliefs:
-            return True
-        all_beliefs = [b[0] for b in self.beliefs]
-        combined = all_beliefs + [belief]
-        return bool(satisfiable(to_cnf('&'.join(str(b) for b in combined), simplify=True)))
+    # def is_consistent(self, belief: str) -> bool:
+    #     """Check if adding the belief causes any contradictions."""
+    #     if not self.beliefs:
+    #         return True
+    #     all_beliefs = [b[0] for b in self.beliefs]
+    #     combined = all_beliefs + [belief]
+    #     return bool(satisfiable(to_cnf('&'.join(str(b) for b in combined), simplify=True)))
 
     def convert_to_cnf(self, belief: str) -> str:
         """Convert a belief to CNF (Conjunctive Normal Form)."""

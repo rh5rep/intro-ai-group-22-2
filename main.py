@@ -1,35 +1,105 @@
+from belief_base import BeliefBase
+from resolution import negate_formula, resolution
 
-belief_base = {
-    "P → Q": {"entrenchment": 5},
-    "Q → R": {"entrenchment": 3},
-    "¬R": {"entrenchment": 2}
-}
+def main():
+    """Main function to interact with the belief base using a simple CLI."""
+    belief_base = BeliefBase()
+    
+    print("Belief Revision Agent")
+    print("====================")
+    print("Commands:")
+    print("  add <formula> [<entrenchment>] - Add a belief with optional entrenchment (default 50)")
+    print("  entails <formula> - Check if belief base entails the formula")
+    print("  remove <formula> - Remove a belief")
+    print("  show - Display current belief base")
+    print("  help - Show this help message")
+    print("  exit - Exit the program")
+    print("\nFormula syntax:")
+    print("  p, q, r - Atomic propositions")
+    print("  ~p - Negation")
+    print("  p & q - Conjunction (AND)")
+    print("  p | q - Disjunction (OR)")
+    print("  p >> q - Implication (IF-THEN)")
+    print("  p <<>> q - Equivalence (IFF)")
+    
+    while True:
+        try:
+            command = input("\n> ").strip()
+            
+            if not command:
+                continue
+                
+            if command.lower() == "exit":
+                print("Goodbye!")
+                break
+                
+            if command.lower() == "help":
+                print("Commands:")
+                print("  add <formula> [<entrenchment>] - Add a belief with optional entrenchment (default 50)")
+                print("  entails <formula> - Check if belief base entails the formula")
+                print("  remove <formula> - Remove a belief")
+                print("  show - Display current belief base")
+                print("  help - Show this help message")
+                print("  exit - Exit the program")
+                continue
+                
+            if command.lower() == "show":
+                if not belief_base.beliefs:
+                    print("Belief base is empty.")
+                else:
+                    print("Current Belief Base:")
+                    for i, (belief, entrenchment) in enumerate(belief_base.beliefs):
+                        print(f"  {i+1}. {belief} (entrenchment: {entrenchment})")
+                continue
+                
+            if command.lower().startswith("add "):
+                parts = command[4:].strip().split()
+                if len(parts) >= 2 and parts[-1].isdigit():
+                    formula = " ".join(parts[:-1])
+                    entrenchment = int(parts[-1])
+                else:
+                    formula = " ".join(parts)
+                    entrenchment = 50
+                    
+                try:
+                    # Convert to CNF for consistency
+                    cnf_formula = belief_base.convert_to_cnf(formula)
+                    belief_base.add_belief(cnf_formula, entrenchment)
+                    print(f"Added belief: {cnf_formula} (entrenchment: {entrenchment})")
+                except ValueError as e:
+                    print(f"Error: {e}")
+                continue
+                
+            if command.lower().startswith("remove "):
+                formula = command[7:].strip()
+                try:
+                    belief_base.remove_belief(formula)
+                    print(f"Removed belief: {formula}")
+                except ValueError as e:
+                    print(f"Error: {e}")
+                continue
+                
+            if command.lower().startswith("entails "):
+                formula = command[8:].strip()
+                try:
+                    # Negate the formula for resolution
+                    negated_formula = negate_formula(formula, belief_base)
+                    
+                    # Apply resolution
+                    result = resolution(belief_base, negated_formula)
+                    
+                    if result:
+                        print(f"The belief base entails: {formula}")
+                    else:
+                        print(f"The belief base does not entail: {formula}")
+                except Exception as e:
+                    print(f"Error during entailment check: {e}")
+                continue
+                
+            print(f"Unknown command: {command}")
+            
+        except Exception as e:
+            print(f"Error: {e}")
 
-def to_cnf(belief):
-    """Convert a belief to CNF (Conjunctive Normal Form)."""
-
-    cnf_belief = f"CNF({belief})"
-    print(f"Converted '{belief}' to CNF: {cnf_belief}")
-    return cnf_belief
-
-def remove_implication(belief):
-    """Remove implication from a belief."""
-    if "→" in belief:
-        premise, conclusion = belief.split("→")
-        new_belief = f"¬{premise} ∨ {conclusion}"
-        print(f"Removed implication from '{belief}': {new_belief}")
-        return new_belief
-    return belief
-
-# def demorgan(belief):
-#     """Apply De Morgan's laws to a belief."""
-#     if "¬" in belief:
-#         negated_belief = belief.replace("¬", "")
-#         new_belief = f"¬({negated_belief})"
-#         print(f"Applied De Morgan's law to '{belief}': {new_belief}")
-#         return new_belief
-#     return belief
-
-
-remove_implication("P → Q")
-# demorgan("¬(P ∧ Q)")
+if __name__ == "__main__":
+    main()
