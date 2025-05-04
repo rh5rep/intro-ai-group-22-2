@@ -1,3 +1,4 @@
+import re
 from sympy.logic.boolalg import to_cnf
 from typing import Optional
 from itertools import combinations
@@ -31,7 +32,13 @@ class BeliefBase:
     def convert_to_cnf(self, belief: str) -> str:
         """Convert a belief to CNF (Conjunctive Normal Form)."""
         try:
-            belief = belief.replace("<<>>", "<->")
+            # Replace equivalence manually: p <<>> q  ->  (p >> q) & (q >> p)
+            pattern = r"(.+?)\s*<<>>\s*(.+)"
+            match = re.fullmatch(pattern, belief.strip())
+            if match:
+                left, right = match.groups()
+                belief = f"({left} >> {right}) & ({right} >> {left})"
+            
             cnf_expr = to_cnf(belief, simplify=True)
             return str(cnf_expr)
         except Exception as e:
