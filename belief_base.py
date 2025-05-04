@@ -1,6 +1,7 @@
-from sympy import satisfiable
 from sympy.logic.boolalg import to_cnf
 from typing import Optional
+from itertools import combinations
+from resolution import negate_formula, resolution
 
 
 class BeliefBase:
@@ -10,7 +11,7 @@ class BeliefBase:
         """Initialize an empty belief base."""
         self.beliefs = []  # list of tuples: (expr, entrenchment)
 
-    def add_belief(self, belief: str, entrenchment: Optional[int] = 50):
+    def expand(self, belief: str, entrenchment: Optional[int] = 50):
         """Add a belief to the belief base with optional entrenchment."""
         self.beliefs.append((belief, entrenchment))
 
@@ -25,11 +26,12 @@ class BeliefBase:
     def update_belief(self, old_belief: str, new_belief: str, entrenchment: Optional[int] = 50):
         """Update an existing belief in the belief base."""
         self.remove_belief(old_belief)
-        self.add_belief(new_belief, entrenchment)
+        self.expand(new_belief, entrenchment)
 
     def convert_to_cnf(self, belief: str) -> str:
         """Convert a belief to CNF (Conjunctive Normal Form)."""
         try:
+            belief = belief.replace("<<>>", "<->")
             cnf_expr = to_cnf(belief, simplify=True)
             return str(cnf_expr)
         except Exception as e:
@@ -42,50 +44,53 @@ class BeliefBase:
                 return b[1]
         raise ValueError(f"Belief not found: {belief}")
 
+    def contract(self, formula: str):
+        """Remove beliefs from the base so that it no longer entails `formula`."""
+        print(f"Attempting to contract: {formula}")
+
+        # Step 1: Check if formula is entailed
+        negated = negate_formula(formula, self)
+        if not resolution(self, negated):
+            print("Formula not entailed — no contraction needed.")
+            return  # Nothing to contract
+
+        # Step 2: Try all subsets of the belief base
+        original_beliefs = list(self.beliefs)
+        for r in range(1, len(original_beliefs) + 1):
+            for subset in combinations(original_beliefs, r):
+                # build a temporary base excluding these beliefs
+                temp_belief_base = BeliefBase()
+                for b in original_beliefs:
+                    if b not in subset:
+                        temp_belief_base.expand(b[0], b[1])
+
+                # check if the formula is still entailed
+                if not resolution(temp_belief_base, negate_formula(formula, temp_belief_base)):
+                    # choose this subset to remove (lowest entrenchment subset)
+                    print(
+                        f"Removing {len(subset)} beliefs to break entailment of '{formula}':")
+                    for belief in subset:
+                        print(f" - {belief[0]} (entrenchment: {belief[1]})")
+                        self.remove_belief(belief[0])
+                    return
+
+        print("No suitable contraction found — base may be inconsistent or minimal.")
+
+    def revise(self, formula: str, entrenchment: int = 50):
+        """Revise the belief base with a new belief `formula`, ensuring consistency."""
+        print(f"Revising belief base with: {formula}")
+        negated = negate_formula(formula, self)
+
+        # Step 1: Contract the negation of the formula
+        self.contract(negated)
+
+        # Step 2: Expand the belief
+        self.expand(formula, entrenchment)
+
+
 # vocabulary
 # ~ is ¬
 # & is ∧
 # | is ∨
 # >> is →
 # <<>> is ↔
-
-
-if __name__ == "__main__":
-    belief_base = BeliefBase()
-
-    # Test 1: Add consistent beliefs
-    try:
-        belief_base.add_belief("p", entrenchment=10)
-        belief_base.add_belief("q", entrenchment=80)
-        print("Test 1 Passed: Added 'p' (10) and 'q' (80)")
-    except Exception as e:
-        print("Test 1 Failed:", e)
-
-    # Test 3: Update a belief
-    try:
-        belief_base.update_belief("q", "~q", entrenchment=60)
-        print("Test 3 Passed: Updated 'q' → '~q'")
-    except Exception as e:
-        print("Test 3 Failed:", e)
-
-    # Test 4: Remove a belief
-    try:
-        belief_base.remove_belief("~q")
-        print("Test 4 Passed: Removed '~q'")
-    except Exception as e:
-        print("Test 4 Failed:", e)
-
-    # Test 5: Convert implication to CNF
-    try:
-        cnf = belief_base.convert_to_cnf("p >> q")
-        print(f"Test 5 Passed: CNF of 'p >> q' is '{cnf}'")
-    except Exception as e:
-        print("Test 5 Failed:", e)
-
-    # Test 6: Check entrenchment of 'p'
-    try:
-        entrenchment = belief_base.get_entrenchment("p")
-        assert entrenchment == 10
-        print(f"Test 6 Passed: Entrenchment of 'p' is {entrenchment}")
-    except Exception as e:
-        print("Test 6 Failed:", e)

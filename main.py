@@ -9,6 +9,7 @@ def main():
     print("====================")
     print("Commands:")
     print("  expand <formula> [<entrenchment>] - Add a belief (expansion) with optional entrenchment (default 50)")
+    print("  revise <formula> [<entrenchment>] - Revise belief base with formula (contract ¬ϕ then expand ϕ)")
     print("  entails <formula> - Check if belief base entails the formula")
     print("  remove <formula> - Remove a belief")
     print("  show - Display current belief base")
@@ -36,6 +37,7 @@ def main():
             if command.lower() == "help":
                 print("Commands:")
                 print("  expand <formula> [<entrenchment>] - Add a belief (expansion) with optional entrenchment (default 50)")
+                print("  revise <formula> [<entrenchment>] - Revise belief base with formula (contract ¬ϕ then expand ϕ)")
                 print("  entails <formula> - Check if belief base entails the formula")
                 print("  remove <formula> - Remove a belief")
                 print("  show - Display current belief base")
@@ -53,7 +55,7 @@ def main():
                 continue
                 
             if command.lower().startswith("expand "):
-                parts = command[4:].strip().split()
+                parts = command[7:].strip().split()
                 if len(parts) >= 2 and parts[-1].isdigit():
                     formula = " ".join(parts[:-1])
                     entrenchment = int(parts[-1])
@@ -68,6 +70,23 @@ def main():
                     print(f"Expanded belief base with: {cnf_formula} (entrenchment: {entrenchment})")
                 except ValueError as e:
                     print(f"Error: {e}")
+                continue
+
+            if command.lower().startswith("revise "):
+                parts = command[7:].strip().split()
+                if len(parts) >= 2 and parts[-1].isdigit():
+                    formula = " ".join(parts[:-1])
+                    entrenchment = int(parts[-1])
+                else:
+                    formula = " ".join(parts)
+                    entrenchment = 50
+
+                try:
+                    cnf_formula = belief_base.convert_to_cnf(formula)
+                    belief_base.revise(cnf_formula, entrenchment)
+                    print(f"Revised belief base with: {cnf_formula} (entrenchment: {entrenchment})")
+                except Exception as e:
+                    print(f"Error during revision: {e}")
                 continue
                 
             if command.lower().startswith("remove "):
