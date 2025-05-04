@@ -8,7 +8,7 @@ def main():
     print("Belief Revision Agent")
     print("====================")
     print("Commands:")
-    print("  add <formula> [<entrenchment>] - Add a belief with optional entrenchment (default 50)")
+    print("  expand <formula> [<entrenchment>] - Add a belief (expansion) with optional entrenchment (default 50)")
     print("  entails <formula> - Check if belief base entails the formula")
     print("  remove <formula> - Remove a belief")
     print("  show - Display current belief base")
@@ -35,7 +35,7 @@ def main():
                 
             if command.lower() == "help":
                 print("Commands:")
-                print("  add <formula> [<entrenchment>] - Add a belief with optional entrenchment (default 50)")
+                print("  expand <formula> [<entrenchment>] - Add a belief (expansion) with optional entrenchment (default 50)")
                 print("  entails <formula> - Check if belief base entails the formula")
                 print("  remove <formula> - Remove a belief")
                 print("  show - Display current belief base")
@@ -52,7 +52,7 @@ def main():
                         print(f"  {i+1}. {belief} (entrenchment: {entrenchment})")
                 continue
                 
-            if command.lower().startswith("add "):
+            if command.lower().startswith("expand "):
                 parts = command[4:].strip().split()
                 if len(parts) >= 2 and parts[-1].isdigit():
                     formula = " ".join(parts[:-1])
@@ -65,7 +65,7 @@ def main():
                     # Convert to CNF for consistency
                     cnf_formula = belief_base.convert_to_cnf(formula)
                     belief_base.add_belief(cnf_formula, entrenchment)
-                    print(f"Added belief: {cnf_formula} (entrenchment: {entrenchment})")
+                    print(f"Expanded belief base with: {cnf_formula} (entrenchment: {entrenchment})")
                 except ValueError as e:
                     print(f"Error: {e}")
                 continue

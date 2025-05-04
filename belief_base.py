@@ -12,12 +12,7 @@ class BeliefBase:
 
     def add_belief(self, belief: str, entrenchment: Optional[int] = 50):
         """Add a belief to the belief base with optional entrenchment."""
-        # TODO: Use Rami's check for contradiction (resolution) 
         self.beliefs.append((belief, entrenchment))
-        # if self.is_consistent(belief):
-        #     self.beliefs.append((belief, entrenchment))
-        # else:
-        #     raise ValueError(f"Contradiction detected: {belief}")
 
     def remove_belief(self, belief: str):
         """Remove a belief from the belief base."""
@@ -31,14 +26,6 @@ class BeliefBase:
         """Update an existing belief in the belief base."""
         self.remove_belief(old_belief)
         self.add_belief(new_belief, entrenchment)
-
-    # def is_consistent(self, belief: str) -> bool:
-    #     """Check if adding the belief causes any contradictions."""
-    #     if not self.beliefs:
-    #         return True
-    #     all_beliefs = [b[0] for b in self.beliefs]
-    #     combined = all_beliefs + [belief]
-    #     return bool(satisfiable(to_cnf('&'.join(str(b) for b in combined), simplify=True)))
 
     def convert_to_cnf(self, belief: str) -> str:
         """Convert a belief to CNF (Conjunctive Normal Form)."""
@@ -73,13 +60,6 @@ if __name__ == "__main__":
         print("Test 1 Passed: Added 'p' (10) and 'q' (80)")
     except Exception as e:
         print("Test 1 Failed:", e)
-
-    # Test 2: Try adding a contradictory belief
-    try:
-        belief_base.add_belief("~p", entrenchment=20)
-        print("Test 2 Failed: Contradiction not detected")
-    except ValueError as e:
-        print("Test 2 Passed:", e)
 
     # Test 3: Update a belief
     try:
