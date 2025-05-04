@@ -1,0 +1,12 @@
+Rami: 
+
+- `resolution.py`
+- `main.py`
+- Report:
+    - Introduction
+    - Theory
+    - Resolution
+    - CNF
+    - Contradiction and Negation
+    - Formula Parsing
+    - Command Line
