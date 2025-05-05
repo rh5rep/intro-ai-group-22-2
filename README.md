@@ -119,14 +119,71 @@ Current Belief Base:
 
 ## Test Coverage
 
-The `test.py` module tests:
+### Basic Functionality
 
-- Belief expansion, update, removal
-- Entrenchment values and edge cases
-- CNF conversion (including nested equivalences and implications)
-- Contraction (removal of beliefs to break entailment)
-- Revision (contract + expand)
-- Logical entailment resolution
+- **test_basic_expansion**  
+  Verifies that beliefs are correctly added via expansion.
+
+- **test_cnf_conversion**  
+  Confirms correct CNF conversion for implication (`>>`) and equivalence (`<<>>`).
+
+- **test_entrenchment**  
+  Ensures correct retrieval of belief entrenchment value.
+
+- **test_remove_existing_belief**  
+  Tests successful removal of a belief.
+
+- **test_remove_nonexistent_belief**  
+  Expects an error when trying to remove a belief that doesn't exist.
+
+- **test_update_belief**  
+  Checks that an existing belief can be updated to a new one with different entrenchment.
+
+- **test_get_entrenchment_nonexistent**  
+  Verifies error handling for querying entrenchment of a non-existent belief.
+
+### Logical Handling
+
+- **test_add_contradictory_beliefs**  
+  Adds contradictory beliefs without consistency check (expansion should allow this).
+
+- **test_complex_formula**  
+  Tests CNF conversion for a nested formula using implication and negation.
+
+- **test_nested_equivalence**  
+  Ensures support for equivalence (`<<>>`) involving nested expressions.
+
+### Task 3: Contraction
+
+- **test_contract_simple**  
+  Checks that contraction removes enough beliefs to break entailment.
+
+- **test_contract_non_entailed**  
+  Verifies that contraction doesn't alter the base if the formula is not entailed.
+
+- **test_contraction_with_equal_entrenchment**  
+  Confirms contraction works when all beliefs have the same entrenchment.
+
+### Task 4: Revision
+
+- **test_revision_adds_and_removes**  
+  Revising with a contradictory belief should remove entailments and add the new one.
+
+- **test_revision_consistent_addition**  
+  Revising with a consistent belief should simply add it.
+
+### Task 2: Entailment
+
+- **test_entailment_resolution_direct**  
+  Validates resolution and negation logic directly by checking entailment.
+
+### Edge Cases
+
+- **test_invalid_formula**  
+  Ensures invalid formula strings raise errors.
+
+- **test_empty_formula_conversion**  
+  Confirms empty string input results in a conversion error.
 
 ---
 

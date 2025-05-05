@@ -1,5 +1,6 @@
 import unittest
 from belief_base import BeliefBase
+from resolution import negate_formula, resolution
 
 
 class TestBeliefBase(unittest.TestCase):
@@ -17,7 +18,8 @@ class TestBeliefBase(unittest.TestCase):
         self.assertEqual(cnf, "q | ~p")
 
         cnf_equiv = self.base.convert_to_cnf("p <<>> q")
-        self.assertIn("|", cnf_equiv)  # It expands to conjunction of implications
+        # It expands to conjunction of implications
+        self.assertIn("|", cnf_equiv)
 
     def test_entrenchment(self):
         self.base.expand("r", 35)
@@ -70,11 +72,13 @@ class TestBeliefBase(unittest.TestCase):
         self.base.contract("q")
         remaining = [b[0] for b in self.base.beliefs]
         self.assertNotIn("q", remaining)
-        self.assertFalse("p" in remaining and "p >> q" in remaining)  # At least one should be gone
+        # At least one should be gone
+        self.assertFalse("p" in remaining and "p >> q" in remaining)
 
     def test_contract_non_entailed(self):
         self.base.expand("p", 30)
-        self.base.contract("z")  # 'z' is not entailed; nothing should be removed
+        # 'z' is not entailed; nothing should be removed
+        self.base.contract("z")
         self.assertEqual(len(self.base.beliefs), 1)
 
     def test_revision_adds_and_removes(self):
@@ -88,6 +92,39 @@ class TestBeliefBase(unittest.TestCase):
         self.assertIn("~q", beliefs)
         self.assertNotIn("q", beliefs)  # Ensure contradiction resolved
 
+    def test_entailment_resolution_direct(self):
+        self.base.expand("p", 20)
+        self.base.expand("p >> q", 30)
+        negated_q = negate_formula("q", self.base)
+        self.assertTrue(resolution(self.base, negated_q))  # Should entail q
+
+    def test_contraction_with_equal_entrenchment(self):
+        self.base.expand("p", 50)
+        self.base.expand("q", 50)
+        self.base.expand("p >> r", 50)
+        self.base.expand("q >> r", 50)
+        self.base.expand("r", 50)
+
+        self.base.contract("r")
+        beliefs = [b[0] for b in self.base.beliefs]
+        self.assertNotIn("r", beliefs)
+        # At least one supporting belief removed
+        self.assertLess(len(beliefs), 5)
+
+    def test_revision_consistent_addition(self):
+        self.base.expand("p", 20)
+        self.base.revise("q", 30)
+        beliefs = [b[0] for b in self.base.beliefs]
+        self.assertIn("p", beliefs)
+        self.assertIn("q", beliefs)
+
+    def test_invalid_formula(self):
+        with self.assertRaises(ValueError):
+            self.base.convert_to_cnf("p <<< q")  # malformed operator
+
+    def test_empty_formula_conversion(self):
+        with self.assertRaises(ValueError):
+            self.base.convert_to_cnf("")
 
 
 if __name__ == "__main__":
