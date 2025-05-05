@@ -17,7 +17,12 @@ class BeliefRevisionCLI(cmd.Cmd):
         """expand <formula> [<entrenchment>]: Add a belief to the belief base (expansion)."""
         formula, entrenchment = self._parse_formula_arg(arg)
         try:
-            formula = formula.replace("<<>>", "<->")
+            if "<<" in formula and ">>" in formula:
+                parts = formula.split("<<>>")
+                if len(parts) == 2:
+                    left = parts[0].strip()
+                    right = parts[1].strip()
+                    formula = f"({left} >> {right}) & ({right} >> {left})"
             cnf = self.belief_base.convert_to_cnf(formula)
             self.belief_base.expand(cnf, entrenchment)
             print(
@@ -29,7 +34,12 @@ class BeliefRevisionCLI(cmd.Cmd):
         """revise <formula> [<entrenchment>]: Revise belief base using contraction and expansion."""
         formula, entrenchment = self._parse_formula_arg(arg)
         try:
-            formula = formula.replace("<<>>", "<->")
+            if "<<" in formula and ">>" in formula:
+                parts = formula.split("<<>>")
+                if len(parts) == 2:
+                    left = parts[0].strip()
+                    right = parts[1].strip()
+                    formula = f"({left} >> {right}) & ({right} >> {left})"
             cnf = self.belief_base.convert_to_cnf(formula)
             self.belief_base.revise(cnf, entrenchment)
             print(
@@ -39,7 +49,13 @@ class BeliefRevisionCLI(cmd.Cmd):
 
     def do_entails(self, arg):
         """entails <formula>: Check if belief base logically entails the given formula."""
-        formula = arg.strip().replace("<<>>", "<->")
+        formula = arg.strip()
+        if "<<" in formula and ">>" in formula:
+            parts = formula.split("<<>>")
+            if len(parts) == 2:
+                left = parts[0].strip()
+                right = parts[1].strip()
+                formula = f"({left} >> {right}) & ({right} >> {left})"
         try:
             negated = negate_formula(formula, self.belief_base)
             if resolution(self.belief_base, negated):

@@ -102,12 +102,37 @@ Current Belief Base:
 ├── run.py              # Entry point to CLI
 ├── demonstrate.py      # Demonstration of all core tasks with logging
 ├── test.py             # Unit tests covering all functionality
+├── test_agm.py         # Unit tests covering AGM postulates
 └── README.md           # You are here
 ```
 
 ---
 
-## Test Coverage
+## AGM Postulate Tests - `test_agm.py`
+
+The system includes a separate test suite to verify that the belief revision implementation complies with the **AGM belief revision postulates**. These are foundational principles for rational belief change.
+
+### Covered Postulates
+
+- **Success**: After revising with φ, φ is in the belief base.
+- **Inclusion**: Original beliefs are retained unless they contradict φ.
+- **Vacuity**: If ¬φ is not in the base, revising with φ acts like expansion.
+- **Consistency**: Revising with a consistent φ should not lead to contradiction.
+- **Extensionality**: Revising with logically equivalent formulas yields the same result.
+
+This file includes formal unit tests validating each postulate. It uses a helper function `is_consistent()` to detect contradictions by checking if the belief base entails `False`.
+
+### How to Run
+
+```bash
+python test_agm.py
+```
+
+These tests confirm that the belief revision engine conforms to rationality criteria and maintains consistent behavior during belief updates.
+
+---
+
+## Unit tests - `test.py`
 
 ### Basic Functionality
 
