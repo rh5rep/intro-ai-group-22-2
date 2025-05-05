@@ -1,10 +1,7 @@
-from belief_base import BeliefBase
+"""Implementation of the resolution algorithm for propositional logic."""
 
-def negate_formula(formula, belief_base=None):
+def negate_formula(formula, belief_base):
     """Negate the formula and apply De Morgan's laws if needed."""
-    if belief_base is None:
-        belief_base = BeliefBase()
-        
     if "&" in formula:
         # Apply De Morgan's law for conjunctions: ~(p&q) = ~p | ~q
         terms = formula.split("&")
@@ -25,11 +22,8 @@ def negate_formula(formula, belief_base=None):
     return negated_formula
 
 
-def resolve(clause1, clause2, belief_base=None):
+def resolve(clause1, clause2, belief_base):
     """Check complementary literals and return resolvent."""
-    if belief_base is None:
-        belief_base = BeliefBase()
-        
     clause1 = belief_base.convert_to_cnf(clause1)
     clause2 = belief_base.convert_to_cnf(clause2)
     
@@ -95,28 +89,6 @@ def resolution(belief_base, negated_formula):
     # If no contradiction is found, the negated formula is not entailed
     print("No contradiction found.")
     return False
-
-
-if __name__ == "__main__":
-    belief_base = BeliefBase()
-
-    # Add non-contradictory beliefs for resolution
-    belief_base.add_belief("p")
-    belief_base.add_belief("p >> q")  # if p then q
-
-    for belief in belief_base.beliefs:
-        print(f"Belief: {belief[0]}, Entrenchment: {belief[1]}")
-
-    # We want to prove 'formula' using resolution, so negate it
-    formula = "z"
-    negated_formula = negate_formula(formula, belief_base)
-    
-    # Apply resolution
-    result = resolution(belief_base, negated_formula)
-    if result:
-        print(f"The belief set entails the negation of '{formula}'.")
-    else:
-        print(f"The belief set does not entail '{formula}'.")
 
 
 # Step 1: Negate the formula
