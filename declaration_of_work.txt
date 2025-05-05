@@ -21,3 +21,8 @@ Greg:
 - contraction (in belief_base.py)
 - expansion (in belief_base.py)
 - revision (in belief_base.py)
+
+AJ:
+- contraction
+- Report:
+    -  Belief Base
