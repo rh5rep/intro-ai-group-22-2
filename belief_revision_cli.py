@@ -11,7 +11,7 @@ class BeliefRevisionCLI(cmd.Cmd):
 Belief Revision Agent
 ====================
 Commands:
-  add <formula> [<entrenchment>] - Add a belief with optional entrenchment (default 50)
+  expand <formula> [<entrenchment>] - Add a belief to the base
   entails <formula> - Check if belief base entails the formula
   remove <formula> - Remove a belief
   show - Display current belief base

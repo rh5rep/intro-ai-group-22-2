@@ -98,6 +98,12 @@ class TestBeliefBase(unittest.TestCase):
         negated_q = negate_formula("q", self.base)
         self.assertTrue(resolution(self.base, negated_q))  # Should entail q
 
+    # def test_entailment_resolution_direct(self):
+    #     self.base.expand("p", 20)
+    #     self.base.expand("p & q", 30)
+    #     negated_q = negate_formula("q", self.base)
+    #     self.assertTrue(resolution(self.base, negated_q))  # Should entail q
+
     def test_contraction_with_equal_entrenchment(self):
         self.base.expand("p", 50)
         self.base.expand("q", 50)
