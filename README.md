@@ -47,16 +47,6 @@ launch interactive CLI
 python run.py
 ```
 
-run test suite
-```bash
-python test.py
-```
-
-run automated demonstrations
-```bash
-python demonstrate.py
-```
-
 ---
 
 ## CLI Commands
@@ -185,7 +175,78 @@ Current Belief Base:
 - **test_empty_formula_conversion**  
   Confirms empty string input results in a conversion error.
 
+
+### How to Run
+```bash
+python test.py
+```
 ---
+
+## Belief Revision Agent Demo - demonstration.py
+
+This module serves as a comprehensive **demonstration script** for the belief revision agent, showcasing how the core functionality aligns with the assignment tasks (1–4) and belief revision theory.
+
+It prints structured outputs for each task, using a fresh `BeliefBase` instance per section. The results are printed in a clean and segmented format for clarity and traceability.
+
+---
+
+### What It Demonstrates
+
+#### Task 1: Belief Base Representation
+- Expands beliefs with different entrenchment values
+- Updates and removes beliefs
+- Retrieves entrenchment of a belief
+- Converts formulas to CNF
+- Handles equivalence (`<<>>`) operator
+- Detects invalid formula syntax
+
+#### Task 2: Logical Entailment (Resolution)
+- Adds beliefs that imply a conclusion
+- Checks if a formula is entailed using resolution
+- Prints resolution steps and whether entailment holds
+
+#### Task 3: Contraction
+- Removes beliefs such that a target formula is no longer entailed
+- Removes beliefs based on **lowest entrenchment** (priority-based)
+- Shows behavior for both entailed and non-entailed formulas
+
+#### Task 4: Expansion
+- Adds multiple beliefs, including contradictory ones
+- Demonstrates that expansion does **not** enforce consistency
+
+#### Full Revision
+- Combines contraction and expansion
+- Shows how the belief base is first contracted to remove conflicts, then expanded with the new belief
+- Includes resolution traces and final belief base state
+
+---
+
+### Example Output Format
+
+The script prints well-separated sections like:
+
+```
+==================================================
+TASK 3: Contraction
+==================================================
+Initial Beliefs:
+  - p (entrenchment: 20)
+  - p >> q (entrenchment: 40)
+  - q (entrenchment: 60)
+Contracting 'q'...
+...
+Beliefs after contraction:
+  - p >> q (entrenchment: 40)
+```
+
+Each task concludes with the **final belief base state**, making it easy to verify the behavior visually.
+
+---
+
+### How to Run
+```bash
+python demonstrate.py
+```
 
 ## Notes
 

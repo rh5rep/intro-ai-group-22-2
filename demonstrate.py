@@ -37,6 +37,15 @@ def demonstrate_task1():
     cnf = bb.convert_to_cnf("p >> r")
     print(f"CNF of 'p >> r': {cnf}")
 
+    equiv = bb.convert_to_cnf("p <<>> q")
+    print(f"CNF of 'p <<>> q': {equiv}")
+
+    print("Trying to convert invalid formula:")
+    try:
+        bb.convert_to_cnf("p <<< q")
+    except ValueError as e:
+        print("Expected error:", e)
+
 
 def demonstrate_task2():
     line("TASK 2: Logical Entailment (Resolution)")
@@ -51,7 +60,7 @@ def demonstrate_task2():
     negated = negate_formula(query, bb)
     result = resolution(bb, negated)
 
-    print("Result:", "Entailed ✅" if result else "Not entailed ❌")
+    print("Result:", "Entailed" if result else "Not entailed")
 
 
 def demonstrate_task3():
@@ -73,14 +82,17 @@ def demonstrate_task3():
     for b, e in bb.beliefs:
         print(f"  - {b} (entrenchment: {e})")
 
+    print("Contracting non-entailed formula 'z' (no changes expected)")
+    bb.contract("z")
+
 
 def demonstrate_task4():
     line("TASK 4: Expansion")
 
     bb = BeliefBase()
     print("Expanding belief base with contradictory beliefs:")
-    bb.expand("p")
-    bb.expand("~p")
+    bb.expand("p", entrenchment=40)
+    bb.expand("~p", entrenchment=30)
 
     print("Beliefs now:")
     for b, e in bb.beliefs:
