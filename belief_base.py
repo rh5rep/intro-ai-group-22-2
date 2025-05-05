@@ -32,7 +32,6 @@ class BeliefBase:
     def convert_to_cnf(self, belief: str) -> str:
         """Convert a belief to CNF (Conjunctive Normal Form)."""
         try:
-            # Replace equivalence manually: p <<>> q  ->  (p >> q) & (q >> p)
             pattern = r"(.+?)\s*<<>>\s*(.+)"
             match = re.fullmatch(pattern, belief.strip())
             if match:
@@ -40,9 +39,13 @@ class BeliefBase:
                 belief = f"({left} >> {right}) & ({right} >> {left})"
             
             cnf_expr = to_cnf(belief, simplify=True)
-            return str(cnf_expr)
+            cnf_str = str(cnf_expr)
+            if not cnf_str:
+                raise ValueError("CNF conversion resulted in empty expression.")
+            return cnf_str
         except Exception as e:
-            raise ValueError(f"Failed to convert belief to CNF: {e}")
+            raise ValueError(f"Invalid formula or unsupported syntax: '{belief}' → {e}")
+
 
     def get_entrenchment(self, belief: str) -> int:
         """Return the entrenchment value of a belief."""
@@ -51,8 +54,9 @@ class BeliefBase:
                 return b[1]
         raise ValueError(f"Belief not found: {belief}")
 
+
     def contract(self, formula: str):
-        """Remove beliefs from the base so that it no longer entails `formula`."""
+        """Remove the least entrenched subset of beliefs so that the belief base no longer entails `formula`."""
         print(f"Attempting to contract: {formula}")
 
         # Step 1: Check if formula is entailed
@@ -61,27 +65,34 @@ class BeliefBase:
             print("Formula not entailed — no contraction needed.")
             return  # Nothing to contract
 
-        # Step 2: Try all subsets of the belief base
         original_beliefs = list(self.beliefs)
+        successful_subsets = []
+
+        # Step 2: Try all subsets of the belief base
         for r in range(1, len(original_beliefs) + 1):
             for subset in combinations(original_beliefs, r):
-                # build a temporary base excluding these beliefs
-                temp_belief_base = BeliefBase()
+                # Build a temporary base excluding this subset
+                temp_base = BeliefBase()
                 for b in original_beliefs:
                     if b not in subset:
-                        temp_belief_base.expand(b[0], b[1])
+                        temp_base.expand(b[0], b[1])
 
-                # check if the formula is still entailed
-                if not resolution(temp_belief_base, negate_formula(formula, temp_belief_base)):
-                    # choose this subset to remove (lowest entrenchment subset)
-                    print(
-                        f"Removing {len(subset)} beliefs to break entailment of '{formula}':")
-                    for belief in subset:
-                        print(f" - {belief[0]} (entrenchment: {belief[1]})")
-                        self.remove_belief(belief[0])
-                    return
+                if not resolution(temp_base, negate_formula(formula, temp_base)):
+                    # Store subset and its total entrenchment
+                    total_entrenchment = sum(b[1] for b in subset)
+                    successful_subsets.append((subset, total_entrenchment))
 
-        print("No suitable contraction found — base may be inconsistent or minimal.")
+        if not successful_subsets:
+            print("No suitable contraction found — base may be inconsistent or minimal.")
+            return
+
+        # Step 3: Pick the subset with the lowest total entrenchment
+        best_subset, min_score = min(successful_subsets, key=lambda x: x[1])
+        print(f"Removing {len(best_subset)} beliefs (lowest entrenchment: {min_score}) to break entailment of '{formula}':")
+        for belief in best_subset:
+            print(f" - {belief[0]} (entrenchment: {belief[1]})")
+            self.remove_belief(belief[0])
+
 
     def revise(self, formula: str, entrenchment: int = 50):
         """Revise the belief base with a new belief `formula`, ensuring consistency."""
