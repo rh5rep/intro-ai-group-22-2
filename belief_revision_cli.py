@@ -65,7 +65,7 @@ class BeliefRevisionCLI(cmd.Cmd):
         else:
             print("Current Belief Base:")
             for i, (belief, entrenchment) in enumerate(self.belief_base.beliefs):
-                print(f"  {i+1}. {belief} (entrenchment: {entrenchment})")
+                print(f"  {i+1:2}. {belief:<30} [entrenchment: {entrenchment}]")
 
     def do_exit(self, _):
         """exit: Exit the CLI."""
