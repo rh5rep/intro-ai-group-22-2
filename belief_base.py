@@ -1,5 +1,6 @@
 import re
-from sympy.logic.boolalg import to_cnf
+from sympy.logic.boolalg import to_cnf, simplify_logic
+from sympy.parsing.sympy_parser import parse_expr
 from typing import Optional
 from itertools import combinations
 from resolution import negate_formula, resolution
@@ -13,8 +14,9 @@ class BeliefBase:
         self.beliefs = []  # list of tuples: (expr, entrenchment)
 
     def expand(self, belief: str, entrenchment: Optional[int] = 50):
-        """Add a belief to the belief base with optional entrenchment."""
-        self.beliefs.append((belief, entrenchment))
+        """Add a belief to the belief base with optional entrenchment, after simplification."""
+        simplified = self.convert_to_cnf(belief)
+        self.beliefs.append((simplified, entrenchment))
 
     def remove_belief(self, belief: str):
         """Remove a belief from the belief base."""
@@ -30,19 +32,17 @@ class BeliefBase:
         self.expand(new_belief, entrenchment)
 
     def convert_to_cnf(self, belief: str) -> str:
-        """Convert a belief to CNF (Conjunctive Normal Form)."""
+        """Convert a belief to simplified CNF form (handles <<>> and ~~)."""
         try:
-            pattern = r"(.+?)\s*<<>>\s*(.+)"
-            match = re.fullmatch(pattern, belief.strip())
+            match = re.fullmatch(r"(.+?)\s*<<>>\s*(.+)", belief.strip())
             if match:
                 left, right = match.groups()
                 belief = f"({left} >> {right}) & ({right} >> {left})"
-            
-            cnf_expr = to_cnf(belief, simplify=True)
-            cnf_str = str(cnf_expr)
-            if not cnf_str:
-                raise ValueError("CNF conversion resulted in empty expression.")
-            return cnf_str
+
+            # Parse and simplify logic
+            expr = parse_expr(belief, evaluate=False)
+            simplified_expr = simplify_logic(to_cnf(expr, simplify=True), form='cnf')
+            return str(simplified_expr)
         except Exception as e:
             raise ValueError(f"Invalid formula or unsupported syntax: '{belief}' → {e}")
 
