@@ -6,7 +6,26 @@ from resolution import negate_formula, resolution
 
 class BeliefRevisionCLI(cmd.Cmd):
     """Interactive CLI for Belief Revision Agent using cmd module."""
-    intro = "Welcome to the Belief Revision Agent. Type help or ? to list commands.\n"
+    intro = """Welcome to the Belief Revision Agent. Type help or ? to list commands.
+
+Belief Revision Agent
+====================
+Commands:
+  add <formula> [<entrenchment>] - Add a belief with optional entrenchment (default 50)
+  entails <formula> - Check if belief base entails the formula
+  remove <formula> - Remove a belief
+  show - Display current belief base
+  help - Show this help message
+  exit - Exit the program
+
+Formula syntax:
+  p, q, r - Atomic propositions
+  ~p - Negation
+  p & q - Conjunction (AND)
+  p | q - Disjunction (OR)
+  p >> q - Implication (IF-THEN)
+  p <<>> q - Equivalence (IFF)
+"""
     prompt = "> "
 
     def __init__(self):
@@ -113,6 +132,23 @@ class BeliefRevisionCLI(cmd.Cmd):
             "exit": "exit - Exit the CLI",
             "help": "help [command] - Show help message",
         }
+        
+        if arg:
+            cmd_help = commands.get(arg.strip())
+            if cmd_help:
+                print(cmd_help)
+            else:
+                print(f"No help available for '{arg.strip()}'")
+        else:
+            print("Belief Revision Agent")
+            print("====================")
+            print("\nFormula syntax:")
+            print("  p, q, r - Atomic propositions")
+            print("  ~p - Negation")
+            print("  p & q - Conjunction (AND)")
+            print("  p | q - Disjunction (OR)")
+            print("  p >> q - Implication (IF-THEN)")
+            print("  p <<>> q - Equivalence (IFF)")
 
         if arg:
             cmd_help = commands.get(arg.strip())

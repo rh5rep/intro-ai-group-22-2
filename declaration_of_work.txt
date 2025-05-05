@@ -17,7 +17,7 @@ Greg:
 - test_agm.py
 - demonstrate.py
 - report and README - required changes
-- CLI to use CMD module
+- Refactored CLI (`main.py`) to use CMD module
 - contraction (in belief_base.py)
 - expansion (in belief_base.py)
 - revision (in belief_base.py)
